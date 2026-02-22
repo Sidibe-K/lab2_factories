@@ -1,1 +1,7 @@
-[]
+[
+    {
+        "subject": "Missing Package",
+        "body": "My order #14567 was never delivered. Please help!",
+        "ground_truth": "support"
+    }
+]

@@ -3,6 +3,8 @@ from pydantic import BaseModel
 from typing import Dict, Any, List
 from app.services.email_topic_inference import EmailTopicInferenceService
 from app.dataclasses import Email
+import json 
+import os 
 
 router = APIRouter()
 
@@ -24,6 +26,15 @@ class EmailClassificationResponse(BaseModel):
 class EmailAddResponse(BaseModel):
     message: str
     email_id: int
+
+class TopicCreateRequest(BaseModel):
+    name: str
+    description: str
+
+class EmailStoreRequest(BaseModel):
+    subject: str
+    body: str
+    ground_truth: str = None 
 
 @router.post("/emails/classify", response_model=EmailClassificationResponse)
 async def classify_email(request: EmailRequest):
@@ -52,7 +63,45 @@ async def topics():
 async def pipeline_info():
     inference_service = EmailTopicInferenceService()
     return inference_service.get_pipeline_info()
-
+    
+@router.post("/topics")
+async def add_topic(request: TopicCreateRequest): 
+    file_path = "data/topic_keywords.json"
+    
+    try:
+        with open(file_path, 'r') as f:
+            topics = json.load(f)
+            
+        topics[request.name] = {"description": request.description}
+        
+        with open(file_path, 'w') as f:
+            json.dump(topics, f, indent=4)
+            
+        return {"status": "success", "message": f"topic '{request.name}' added."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(0))
+        
+  
+@router.post("/emails")
+async def store_email(request: EmailStoreRequest): 
+    file_path = "data/emails.json"
+    
+    try:
+        with open(file_path, 'r') as f:
+            stored_emails = json.load(f)
+            
+        stored_emails.append(request.dict())
+        
+        with open(file_path, 'w') as f:
+            json.dump(stored_emails, f, indent=4)
+            
+        return {"status": "success", "message": "Email added to emails.json", "total_emails": len(stored_emails)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error saving email: {str(e)}")
+        
+        
+        
+        
 # TODO: LAB ASSIGNMENT - Part 2 of 2  
 # Create a GET endpoint at "/features" that returns information about all feature generators
 # available in the system.
