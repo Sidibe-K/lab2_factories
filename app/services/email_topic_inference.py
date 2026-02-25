@@ -10,14 +10,14 @@ class EmailTopicInferenceService:
         self.model = EmailClassifierModel()
         self.feature_factory = FeatureGeneratorFactory()
     
-    def classify_email(self, email: Email) -> Dict[str, Any]:
+    def classify_email(self, email: Email, use_stored_emails: bool = False) -> Dict[str, Any]:
         """Classify an email into topics using generated features"""
         
         # Step 1: Generate features from email
         features = self.feature_factory.generate_all_features(email)
         
         # Step 2: Classify using features
-        predicted_topic = self.model.predict(features)
+        predicted_topic = self.model.predict_advanced(features, use_stored_emails)
         topic_scores = self.model.get_topic_scores(features)
         
         # Return comprehensive results

@@ -92,3 +92,40 @@ class EmailClassifierModel:
     def get_all_topics_with_descriptions(self) -> Dict[str, str]:
         """Get all topics with their descriptions"""
         return {topic: self.get_topic_description(topic) for topic in self.topics}
+        
+    def _load_email_data(self) -> List[Dict[str, Any]]:
+        """Load ground truth emails"""
+        data_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'emails.json')
+        if not os.path.exists(data_file):
+            return[]
+        with open(data_file, 'r') as f:
+            return json.load(f)
+
+    def predict_advanced(self, features:Dict[str, Any], use_stored_emails: bool = False) -> str: 
+        """ Switch between topic classification Or most similar stored email"""
+        if not use_stored_emails:
+            return self.predict(features)
+  # Most similar stored email
+        email_embedding = features.get("email_embeddings_average_embedding", None)
+        if email_embedding is None or isinstance (email_embedding, list):
+            email_embedding = np.array(email_embedding) if email_embedding else None
+
+        stored_emails = self._load_email_data()
+        if not stored_emails or email_embedding is None:
+              return self.predict(features)
+
+        best_score = -1
+        predicted_label = "unknown"
+
+        for example in stored_emails:
+              example_embedding = self.model.encode(example['body'], convert_to_numpy= True)
+
+              dot_product = np.dot(email_embedding, example_embedding)
+              norm_product = np.linalg.norm(email_embedding) * np.linalg.norm(example_embedding)
+              score = dot_product / norm_product if norm_product  !=0 else 0
+
+              if score > best_score:
+                  best_score = score
+                  predicted_label = example.get('ground_truth', 'unknown')
+ 
+        return predicted_label

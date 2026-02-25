@@ -14,6 +14,10 @@
     "support": {
         "description": "Customer support, help requests, and technical issues"
     },
-    "Refunds": 
+    "Refunds": {
         "description": "Email regarding customer requests for money back"
+    },
+    "Internship": {
+        "description": "Inquiries regarding AI research positions and interview scheduling"
+    }
 }

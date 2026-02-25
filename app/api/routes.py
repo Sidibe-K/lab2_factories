@@ -37,11 +37,11 @@ class EmailStoreRequest(BaseModel):
     ground_truth: str = None 
 
 @router.post("/emails/classify", response_model=EmailClassificationResponse)
-async def classify_email(request: EmailRequest):
+async def classify_email(request: EmailRequest, use_stored_emails: bool = False):
     try:
         inference_service = EmailTopicInferenceService()
         email = Email(subject=request.subject, body=request.body)
-        result = inference_service.classify_email(email)
+        result = inference_service.classify_email(email, use_stored_emails = use_stored_emails)
         
         return EmailClassificationResponse(
             predicted_topic=result["predicted_topic"],
