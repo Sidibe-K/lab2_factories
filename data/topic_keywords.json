@@ -19,5 +19,8 @@
     },
     "Internship": {
         "description": "Inquiries regarding AI research positions and interview scheduling"
+    },
+    "Billing": {
+        "description": "Inquiries regarding invoices."
     }
 }

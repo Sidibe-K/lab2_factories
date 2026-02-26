@@ -79,7 +79,7 @@ async def add_topic(request: TopicCreateRequest):
             
         return {"status": "success", "message": f"topic '{request.name}' added."}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(0))
+        raise HTTPException(status_code=500, detail=str(e))
         
   
 @router.post("/emails")
